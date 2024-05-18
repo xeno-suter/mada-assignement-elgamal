@@ -1,85 +1,26 @@
+import java.io.FileWriter;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.List;
+import java.nio.file.Paths;
 
 public class IOUtility {
     public static String FILE_NAME_PUBLIC_KEY = "pk.txt";
     public static String FILE_NAME_PRIVATE_KEY = "sk.txt";
-    public static String FILE_NAME_CIPHER = "cipher.txt";
-    public static String FILE_NAME_DECRYPTED_TEXT = "text-d.txt";
+    public static String FILE_NAME_CIPHER_TEXT = "cipher.txt";
+    public static String FILE_NAME_PLAIN_TEXT = "text-d.txt";
+    public static String FILE_NAME_TEXT = "text.txt";
 
-    private final Path publicKeyPath = Path.of(FILE_NAME_PUBLIC_KEY);
-    private final Path privateKeyPath = Path.of(FILE_NAME_PRIVATE_KEY);
-    private final Path chiperPath = Path.of(FILE_NAME_CIPHER);
-    private final Path decryptedTextPath = Path.of(FILE_NAME_DECRYPTED_TEXT);
-
-    public void writePrivateKey(BigInteger k) {
-        writeKey(k, privateKeyPath);
-    }
-
-    public void writePublicKey(BigInteger k) {
-        writeKey(k, publicKeyPath);
-    }
-
-    public void writeCipherText(String c1, String c2) {
-        try {
-            Files.writeString(chiperPath, String.format("(%s, %s);", c1, c2), StandardOpenOption.APPEND, StandardOpenOption.CREATE);
+    public static void writeFile(String fileName, String content) {
+        try (FileWriter writer = new FileWriter(fileName)) {
+            writer.write(content);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void writeDecryptedText(String text) {
+    public static String readFile(String fileName) {
         try {
-            Files.writeString(decryptedTextPath, text);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void writeKey(BigInteger k, Path path) {
-        try {
-            Files.writeString(path, k.toString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public BigInteger readPublicKey() {
-        return readKey(FILE_NAME_PUBLIC_KEY);
-    }
-
-    public BigInteger readPrivateKey() {
-        return readKey(FILE_NAME_PRIVATE_KEY);
-    }
-
-    private BigInteger readKey(String fileName) {
-        var content = readTextFile(fileName);
-        return new BigInteger(content);
-    }
-
-    public byte[] readTextFile(String fileName) {
-        try {
-            return Files.readAllBytes(Path.of(fileName));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void removeOldCipher() {
-        try {
-            Files.deleteIfExists(chiperPath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public List<String> readCipherText() {
-        try {
-            return List.of(Files.readString(chiperPath).split(";"));
+            return new String(Files.readAllBytes(Paths.get(fileName)));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
